@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>數字樂譜練習器</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app">
+      <section class="toolbar" aria-label="樂譜控制">
+        <div>
+          <p class="eyebrow">Numbered Score</p>
+          <h1>數字樂譜練習器</h1>
+        </div>
+
+        <div class="controls">
+          <label>
+            曲目
+            <select id="songSelect"></select>
+          </label>
+          <label>
+            速度
+            <input id="tempoControl" type="range" min="60" max="132" value="92">
+            <span id="tempoValue">92 BPM</span>
+          </label>
+          <div class="button-row">
+            <button id="playBtn" type="button">播放示範</button>
+            <button id="stopBtn" type="button">停止</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="song-info" aria-live="polite">
+        <div>
+          <h2 id="songTitle"></h2>
+          <p id="songMeta"></p>
+        </div>
+        <div class="legend" aria-label="符號說明">
+          <span><b>0</b> 休止</span>
+          <span><b>-</b> 延音</span>
+          <span><b>·</b> 低八度</span>
+          <span><b>˙</b> 高八度</span>
+        </div>
+      </section>
+
+      <section class="score-shell">
+        <div class="score-head">
+          <span>小節</span>
+          <span>數字譜</span>
+          <span>指法/提示</span>
+        </div>
+        <div id="score" class="score" aria-label="數字樂譜"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
