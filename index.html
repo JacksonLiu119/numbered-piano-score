@@ -2,55 +2,62 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>數字樂譜練習器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#050505">
+    <title>數字鋼琴譜</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main class="app">
-      <section class="toolbar" aria-label="樂譜控制">
-        <div>
-          <p class="eyebrow">Numbered Score</p>
-          <h1>數字樂譜練習器</h1>
-        </div>
-
-        <div class="controls">
-          <label>
-            曲目
-            <select id="songSelect"></select>
-          </label>
-          <label>
-            速度
-            <input id="tempoControl" type="range" min="60" max="132" value="92">
-            <span id="tempoValue">92 BPM</span>
-          </label>
-          <div class="button-row">
-            <button id="playBtn" type="button">播放示範</button>
-            <button id="stopBtn" type="button">停止</button>
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">♪</span>
+          <div>
+            <p class="eyebrow">NUMBERED PIANO</p>
+            <h1>數字鋼琴譜</h1>
           </div>
         </div>
-      </section>
 
-      <section class="song-info" aria-live="polite">
-        <div>
-          <h2 id="songTitle"></h2>
-          <p id="songMeta"></p>
+        <div class="controls" aria-label="樂譜控制">
+          <label class="song-picker">
+            <span>曲目</span>
+            <select id="songSelect"></select>
+          </label>
+          <label class="tempo-picker">
+            <span>速度 <strong id="tempoValue">92 BPM</strong></span>
+            <input id="tempoControl" type="range" min="60" max="132" value="92">
+          </label>
+          <button id="playBtn" class="primary-btn" type="button">▶ 播放示範</button>
+          <button id="stopBtn" class="secondary-btn" type="button">■ 停止</button>
         </div>
-        <div class="legend" aria-label="符號說明">
-          <span><b>0</b> 休止</span>
-          <span><b>-</b> 延音</span>
-          <span><b>·</b> 低八度</span>
-          <span><b>˙</b> 高八度</span>
-        </div>
-      </section>
+      </header>
 
-      <section class="score-shell">
-        <div class="score-head">
-          <span>小節</span>
-          <span>數字譜</span>
-          <span>指法/提示</span>
+      <section class="score-reader" aria-live="polite">
+        <div class="score-heading">
+          <div>
+            <p class="section-label">NOW PLAYING</p>
+            <h2 id="songTitle"></h2>
+            <p id="songMeta"></p>
+          </div>
+          <div class="notation-key" aria-label="符號說明">
+            <span><b>0</b> 休止</span>
+            <span><b>-</b> 延音</span>
+            <span><b>·</b> 低音</span>
+            <span><b>˙</b> 高音</span>
+          </div>
         </div>
         <div id="score" class="score" aria-label="數字樂譜"></div>
+      </section>
+
+      <section class="piano-section" aria-label="鋼琴位置示範">
+        <div class="piano-heading">
+          <div>
+            <p class="section-label">PIANO POSITION</p>
+            <h2>手指位置示範</h2>
+          </div>
+          <p class="piano-tip">點擊琴鍵可單獨試音，播放時會同步亮起</p>
+        </div>
+        <div id="piano" class="piano" aria-label="數字鋼琴鍵盤"></div>
       </section>
     </main>
 
