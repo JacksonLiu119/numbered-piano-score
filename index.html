@@ -39,11 +39,18 @@
             <h2 id="songTitle"></h2>
             <p id="songMeta"></p>
           </div>
-          <div class="notation-key" aria-label="符號說明">
-            <span><b>0</b> 休止</span>
-            <span><b>-</b> 延音</span>
-            <span><b>·</b> 低音</span>
-            <span><b>˙</b> 高音</span>
+          <div class="score-actions">
+            <div class="notation-key" aria-label="符號說明">
+              <span><b>0</b> 休止</span>
+              <span><b>_</b> 下點低音</span>
+              <span><b>^</b> 上點高音</span>
+              <span><b>-</b> 延音</span>
+            </div>
+            <div class="page-controls" aria-label="樂譜頁面">
+              <button id="prevPageBtn" class="icon-btn" type="button" aria-label="上一頁">‹</button>
+              <span id="pageIndicator">1 / 1</span>
+              <button id="nextPageBtn" class="icon-btn" type="button" aria-label="下一頁">›</button>
+            </div>
           </div>
         </div>
         <div id="score" class="score" aria-label="數字樂譜"></div>
