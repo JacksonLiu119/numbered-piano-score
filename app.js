@@ -47,8 +47,8 @@ const songs = [
 ];
 
 const scaleSemitones = { "1": 0, "2": 2, "3": 4, "4": 5, "5": 7, "6": 9, "7": 11 };
-const whiteLabels = ["5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7", "1^", "2^"];
-const blackPositions = ["8.2%", "16.5%", "33.2%", "41.5%", "49.8%", "66.5%", "74.8%", "91.5%"];
+const whiteLabels = ["5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7"];
+const blackKeyPositions = [10, 20, 40, 50, 70, 80, 90];
 
 const songSelect = document.querySelector("#songSelect");
 const tempoControl = document.querySelector("#tempoControl");
@@ -90,10 +90,10 @@ function init() {
     piano.appendChild(key);
   });
 
-  blackPositions.forEach((position) => {
+  blackKeyPositions.forEach((position) => {
     const key = document.createElement("span");
     key.className = "black-key";
-    key.style.left = position;
+    key.style.left = `${position}%`;
     key.setAttribute("aria-hidden", "true");
     piano.appendChild(key);
   });
@@ -170,7 +170,9 @@ function parseNote(note) {
 function pianoKeyFor(note) {
   const normalized = note.replace("_", "").replace("^", "");
   const octave = note.includes("_") ? "low" : note.includes("^") ? "high" : "mid";
-  return [...piano.querySelectorAll(".white-key")].find((key) => key.dataset.note.replace("_", "").replace("^", "") === normalized && ((octave === "low" && key.dataset.note.includes("_")) || (octave === "high" && key.dataset.note.includes("^")) || (octave === "mid" && !key.dataset.note.includes("_") && !key.dataset.note.includes("^"))));
+  const keys = [...piano.querySelectorAll(".white-key")];
+  const exactKey = keys.find((key) => key.dataset.note.replace("_", "") === normalized && ((octave === "low" && key.dataset.note.includes("_")) || (octave === "mid" && !key.dataset.note.includes("_"))));
+  return exactKey || keys.find((key) => key.dataset.note.replace("_", "") === normalized && !key.dataset.note.includes("_"));
 }
 
 function playTone(frequency, startTime, duration) {
