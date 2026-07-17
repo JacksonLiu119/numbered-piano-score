@@ -29,26 +29,27 @@ const songs = [
   {
     id: "spirited",
     title: "神隱少女",
-    meta: "依照你提供的兩張譜例整理 / 右手數字旋律 / 可播放示範",
+    meta: "依照你提供的譜例整理 / 右手數字旋律 / 可播放示範",
     keyOffset: 0,
     defaultTempo: 78,
     lines: [
-      ["123153252", "1_6317"],
-      ["7_6_7_125123443212"],
-      ["123153252", "1_66715"],
-      ["5_6_7_125123443211"],
+      ["123153252", "16_317_"],
+      ["7_6_7_125_123443212"],
+      ["123153252", "16_6_7_15_"],
+      ["5_6_7_125_123443211"],
       ["3455555654"],
       ["33333343211"],
-      ["1_7_6_7_71223232"],
+      ["17_6_7_7_1223232"],
       ["3455555654"],
-      ["33334321^7", "6_6_712512322211"]
+      ["333343217^", "6_6_7_125_123222111"]
     ]
   }
 ];
 
 const scaleSemitones = { "1": 0, "2": 2, "3": 4, "4": 5, "5": 7, "6": 9, "7": 11 };
-const whiteLabels = ["5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7"];
-const blackKeyPositions = [10, 20, 40, 50, 70, 80, 90];
+const linesPerPage = 2;
+const whiteLabels = ["3_", "4_", "5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7"];
+const blackKeyPositions = [16.667, 25, 33.333, 50, 58.333, 75, 83.333, 91.667];
 
 const songSelect = document.querySelector("#songSelect");
 const tempoControl = document.querySelector("#tempoControl");
@@ -90,6 +91,11 @@ function init() {
     piano.appendChild(key);
   });
 
+  const divider = document.createElement("span");
+  divider.className = "octave-divider";
+  divider.setAttribute("aria-hidden", "true");
+  piano.appendChild(divider);
+
   blackKeyPositions.forEach((position) => {
     const key = document.createElement("span");
     key.className = "black-key";
@@ -115,7 +121,7 @@ function init() {
 }
 
 function getLines(song) { return song.lines.flatMap((line) => line.map((text) => tokens(text))); }
-function pageCount() { return Math.ceil(currentSong.lines.length / 3); }
+function pageCount() { return Math.ceil(currentSong.lines.length / linesPerPage); }
 function changePage(direction) {
   currentPage = Math.max(0, Math.min(pageCount() - 1, currentPage + direction));
   renderSong();
@@ -130,12 +136,12 @@ function renderSong() {
   prevPageBtn.disabled = currentPage === 0;
   nextPageBtn.disabled = currentPage === pageCount() - 1;
 
-  const startLine = currentPage * 3;
-  currentSong.lines.slice(startLine, startLine + 3).forEach((line, localLineIndex) => {
+  const startLine = currentPage * linesPerPage;
+  currentSong.lines.slice(startLine, startLine + linesPerPage).forEach((line, localLineIndex) => {
     const lineIndex = startLine + localLineIndex;
     const row = document.createElement("div");
     row.className = `score-line${currentSong.id === "twinkle" ? " compact" : ""}`;
-    let flatIndex = currentSong.lines.slice(0, lineIndex).reduce((total, previous) => total + previous.reduce((sum, group) => sum + group.length, 0), 0);
+    let flatIndex = currentSong.lines.slice(0, lineIndex).reduce((total, previous) => total + previous.reduce((sum, group) => sum + tokens(group).length, 0), 0);
 
     line.forEach((group) => {
       const groupEl = document.createElement("span");
@@ -234,7 +240,7 @@ async function playSong() {
       playTone(frequency, time, beat * (sustainBeats - 0.08));
     }
     activeTimers.push(window.setTimeout(() => {
-      const targetPage = Math.floor(findLineForIndex(index) / 3);
+      const targetPage = Math.floor(findLineForIndex(index) / linesPerPage);
       if (targetPage !== currentPage) { currentPage = targetPage; renderSong(); }
       highlight(index, true, note);
     }, Math.max(0, (time - audioContext.currentTime) * 1000)));
