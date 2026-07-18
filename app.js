@@ -41,15 +41,45 @@ const songs = [
       ["33333343211"],
       ["17_6_7_7_1223232"],
       ["3455555654"],
-      ["333343217^", "6_6_7_125_123222111"]
+      ["333343217_", "6_6_7_125_123222111"]
+    ]
+  },
+  {
+    id: "jumper",
+    title: "跳樓機",
+    meta: "依照你提供的三張譜例整理 / 可播放示範 / 鍵盤含高音 1",
+    keyOffset: 0,
+    defaultTempo: 92,
+    lines: [
+      ["1111122", "2112"],
+      ["2221421", "111455"],
+      ["665542424645"],
+      ["665545665454"],
+      ["22212142", "22212455"],
+      ["554565551", "55476655456"],
+      ["444444145", "444444565"],
+      ["5555456", "66554444424"],
+      ["4465445", "4664454"]
+    ],
+    lyrics: [
+      "是不是內心希望 頭破血流",
+      "就會讓妳想起 最愛我的時光",
+      "Baby 我們的感情好像跳樓機",
+      "讓我突然地升空又急速落地",
+      "你帶給我一場瘋狂 劫後餘生好難呼吸",
+      "那天的天氣難得放晴 你說的話卻把我困在雨季",
+      "其實你不是不愛了吧 只是有些摩擦沒處理",
+      "怎麼你閉口不語 是不是我正好說中你的心",
+      "就承認還是在意吧 哪怕騙騙我也可以"
     ]
   }
 ];
 
 const scaleSemitones = { "1": 0, "2": 2, "3": 4, "4": 5, "5": 7, "6": 9, "7": 11 };
 const linesPerPage = 2;
-const whiteLabels = ["3_", "4_", "5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7"];
-const blackKeyPositions = [16.667, 25, 33.333, 50, 58.333, 75, 83.333, 91.667];
+const whiteLabels = ["1_", "2_", "3_", "4_", "5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7", "1^"];
+const blackKeyPositions = [6.667, 13.333, 26.667, 33.333, 40, 53.333, 60, 73.333, 80, 86.667];
+const octaveDividerPositions = [46.667, 93.333];
 
 const songSelect = document.querySelector("#songSelect");
 const tempoControl = document.querySelector("#tempoControl");
@@ -84,17 +114,24 @@ function init() {
     key.className = "white-key";
     key.dataset.note = label;
     key.dataset.index = index;
-    key.textContent = label.replace("_", "").replace("^", "");
+    key.setAttribute("aria-label", `彈奏 ${label.replace("_", "低音").replace("^", "高音")}`);
+    const labelText = document.createElement("span");
+    labelText.className = "key-label";
+    labelText.textContent = label.replace("_", "").replace("^", "");
+    key.appendChild(labelText);
     if (label.endsWith("_")) key.classList.add("low-label");
     if (label.endsWith("^")) key.classList.add("high-label");
     key.addEventListener("click", () => playKeyboardNote(label, key));
     piano.appendChild(key);
   });
 
-  const divider = document.createElement("span");
-  divider.className = "octave-divider";
-  divider.setAttribute("aria-hidden", "true");
-  piano.appendChild(divider);
+  octaveDividerPositions.forEach((position) => {
+    const divider = document.createElement("span");
+    divider.className = "octave-divider";
+    divider.style.left = `${position}%`;
+    divider.setAttribute("aria-hidden", "true");
+    piano.appendChild(divider);
+  });
 
   blackKeyPositions.forEach((position) => {
     const key = document.createElement("span");
@@ -121,9 +158,11 @@ function init() {
 }
 
 function getLines(song) { return song.lines.flatMap((line) => line.map((text) => tokens(text))); }
-function pageCount() { return Math.ceil(currentSong.lines.length / linesPerPage); }
+function maxWindowStart() { return Math.max(0, currentSong.lines.length - linesPerPage); }
+function pageCount() { return maxWindowStart() + 1; }
+function pageForLine(lineIndex) { return Math.max(0, Math.min(maxWindowStart(), lineIndex)); }
 function changePage(direction) {
-  currentPage = Math.max(0, Math.min(pageCount() - 1, currentPage + direction));
+  currentPage = Math.max(0, Math.min(maxWindowStart(), currentPage + direction));
   renderSong();
 }
 
@@ -136,11 +175,13 @@ function renderSong() {
   prevPageBtn.disabled = currentPage === 0;
   nextPageBtn.disabled = currentPage === pageCount() - 1;
 
-  const startLine = currentPage * linesPerPage;
+  const startLine = currentPage;
   currentSong.lines.slice(startLine, startLine + linesPerPage).forEach((line, localLineIndex) => {
     const lineIndex = startLine + localLineIndex;
     const row = document.createElement("div");
     row.className = `score-line${currentSong.id === "twinkle" ? " compact" : ""}`;
+    const notesRow = document.createElement("div");
+    notesRow.className = "score-notes";
     let flatIndex = currentSong.lines.slice(0, lineIndex).reduce((total, previous) => total + previous.reduce((sum, group) => sum + tokens(group).length, 0), 0);
 
     line.forEach((group) => {
@@ -154,8 +195,15 @@ function renderSong() {
         groupEl.appendChild(glyph);
         flatIndex += 1;
       });
-      row.appendChild(groupEl);
+      notesRow.appendChild(groupEl);
     });
+    row.appendChild(notesRow);
+    if (currentSong.lyrics?.[lineIndex]) {
+      const lyric = document.createElement("div");
+      lyric.className = "score-lyric";
+      lyric.textContent = currentSong.lyrics[lineIndex];
+      row.appendChild(lyric);
+    }
     score.appendChild(row);
   });
 }
@@ -177,8 +225,13 @@ function pianoKeyFor(note) {
   const normalized = note.replace("_", "").replace("^", "");
   const octave = note.includes("_") ? "low" : note.includes("^") ? "high" : "mid";
   const keys = [...piano.querySelectorAll(".white-key")];
-  const exactKey = keys.find((key) => key.dataset.note.replace("_", "") === normalized && ((octave === "low" && key.dataset.note.includes("_")) || (octave === "mid" && !key.dataset.note.includes("_"))));
-  return exactKey || keys.find((key) => key.dataset.note.replace("_", "") === normalized && !key.dataset.note.includes("_"));
+  const exactKey = keys.find((key) => {
+    const keyNote = key.dataset.note;
+    const keyDegree = keyNote.replace("_", "").replace("^", "");
+    const keyOctave = keyNote.includes("_") ? "low" : keyNote.includes("^") ? "high" : "mid";
+    return keyDegree === normalized && keyOctave === octave;
+  });
+  return exactKey || keys.find((key) => key.dataset.note.replace("_", "").replace("^", "") === normalized && !key.dataset.note.includes("_") && !key.dataset.note.includes("^"));
 }
 
 function playTone(frequency, startTime, duration) {
@@ -212,12 +265,12 @@ async function ensureAudio() {
 }
 
 async function playKeyboardNote(note, key) {
+  key.classList.add("active");
+  window.setTimeout(() => key.classList.remove("active"), 430);
   await ensureAudio();
   const frequency = parseNote(note);
   const now = audioContext.currentTime;
   playTone(frequency, now, 0.5);
-  key.classList.add("active");
-  window.setTimeout(() => key.classList.remove("active"), 430);
 }
 
 async function playSong() {
@@ -240,7 +293,7 @@ async function playSong() {
       playTone(frequency, time, beat * (sustainBeats - 0.08));
     }
     activeTimers.push(window.setTimeout(() => {
-      const targetPage = Math.floor(findLineForIndex(index) / linesPerPage);
+      const targetPage = pageForLine(findLineForIndex(index));
       if (targetPage !== currentPage) { currentPage = targetPage; renderSong(); }
       highlight(index, true, note);
     }, Math.max(0, (time - audioContext.currentTime) * 1000)));
