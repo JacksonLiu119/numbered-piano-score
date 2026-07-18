@@ -128,45 +128,56 @@ button:hover { filter: brightness(1.13); }
 
 .score {
   display: grid;
-  gap: clamp(12px, 2vw, 26px);
+  gap: clamp(8px, 1.3vw, 16px);
   height: calc(100% - 68px);
-  padding: clamp(10px, 1.8vw, 24px) clamp(18px, 5vw, 72px);
-  align-content: center;
+  padding: clamp(8px, 1.2vw, 16px) clamp(18px, 5vw, 72px);
+  align-content: space-evenly;
   overflow: hidden;
 }
 .score-line {
   display: grid;
   justify-items: center;
-  gap: clamp(4px, .8vw, 8px);
-  min-height: clamp(54px, 6vw, 82px);
+  gap: clamp(3px, .55vw, 6px);
+  min-height: clamp(48px, 5.2vw, 70px);
   color: var(--text);
   font-family: Arial, sans-serif;
-  font-size: clamp(28px, 3.7vw, 52px);
+  font-size: clamp(26px, 3.35vw, 47px);
   font-weight: 800;
-  letter-spacing: clamp(1px, .45vw, 6px);
+  letter-spacing: clamp(1px, .35vw, 5px);
   line-height: 1;
-  white-space: nowrap;
 }
-.score-line.compact { gap: clamp(8px, 1.4vw, 20px); font-size: clamp(28px, 3.5vw, 48px); }
+.score-line.compact { gap: clamp(7px, 1.2vw, 16px); font-size: clamp(26px, 3.25vw, 45px); }
+.score-line.with-lyric {
+  gap: clamp(2px, .35vw, 5px);
+  min-height: 0;
+  font-size: clamp(22px, 2.65vw, 37px);
+  letter-spacing: clamp(1px, .22vw, 3px);
+}
 .score-notes {
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: clamp(10px, 2.2vw, 30px);
+  gap: clamp(8px, 1.6vw, 22px);
+  white-space: nowrap;
 }
 .score-group { display: inline-flex; gap: .02em; }
+.score-line.with-lyric .score-notes { gap: clamp(7px, 1.2vw, 16px); }
 .score-lyric {
-  max-width: min(820px, 86vw);
-  overflow: hidden;
+  max-width: min(980px, 92vw);
+  overflow: visible;
   color: var(--text);
   font-family: "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif;
-  font-size: clamp(15px, 1.9vw, 27px);
+  font-size: clamp(12px, 1.38vw, 19px);
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 1.15;
+  line-height: 1.12;
   text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.score-line.with-lyric .score-lyric {
+  font-size: clamp(11px, 1.18vw, 16px);
+  line-height: 1.08;
 }
 .note-glyph { position: relative; display: inline-block; min-width: .52em; text-align: center; transition: color 120ms ease, transform 120ms ease; }
 .note-glyph.low::after, .note-glyph.high::before { content: ""; position: absolute; left: 50%; width: .16em; height: .16em; border-radius: 50%; background: currentColor; transform: translateX(-50%); }
@@ -279,10 +290,12 @@ button:hover { filter: brightness(1.13); }
   .score-heading, .piano-heading { align-items: start; flex-direction: column; }
   .score-actions { justify-items: start; }
   .notation-key { justify-content: flex-start; }
-  .score { gap: 18px; }
-  .score-line { gap: 5px; font-size: clamp(24px, 7vw, 38px); letter-spacing: 1px; }
-  .score-line.compact { gap: 4px; font-size: clamp(22px, 6.4vw, 34px); }
+  .score { gap: 10px; }
+  .score-line { gap: 4px; font-size: clamp(22px, 6.3vw, 34px); letter-spacing: 1px; }
+  .score-line.compact { gap: 4px; font-size: clamp(20px, 5.8vw, 31px); }
+  .score-line.with-lyric { font-size: clamp(19px, 5.4vw, 29px); }
   .score-notes { gap: 7px; }
-  .score-lyric { max-width: 92vw; font-size: clamp(13px, 4vw, 18px); }
+  .score-lyric { max-width: 92vw; font-size: clamp(12px, 3.4vw, 16px); }
+  .score-line.with-lyric .score-lyric { font-size: clamp(11px, 3vw, 14px); }
   .piano-tip { display: none; }
 }

@@ -179,7 +179,8 @@ function renderSong() {
   currentSong.lines.slice(startLine, startLine + linesPerPage).forEach((line, localLineIndex) => {
     const lineIndex = startLine + localLineIndex;
     const row = document.createElement("div");
-    row.className = `score-line${currentSong.id === "twinkle" ? " compact" : ""}`;
+    const hasLyric = Boolean(currentSong.lyrics?.[lineIndex]);
+    row.className = `score-line${currentSong.id === "twinkle" ? " compact" : ""}${hasLyric ? " with-lyric" : ""}`;
     const notesRow = document.createElement("div");
     notesRow.className = "score-notes";
     let flatIndex = currentSong.lines.slice(0, lineIndex).reduce((total, previous) => total + previous.reduce((sum, group) => sum + tokens(group).length, 0), 0);
@@ -198,7 +199,7 @@ function renderSong() {
       notesRow.appendChild(groupEl);
     });
     row.appendChild(notesRow);
-    if (currentSong.lyrics?.[lineIndex]) {
+    if (hasLyric) {
       const lyric = document.createElement("div");
       lyric.className = "score-lyric";
       lyric.textContent = currentSong.lyrics[lineIndex];
