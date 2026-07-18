@@ -10,6 +10,8 @@ const tokens = (text) => {
   return result;
 };
 
+const high = (text) => text.replace(/[1-7]/g, "$&^");
+
 const songs = [
   {
     id: "twinkle",
@@ -72,14 +74,34 @@ const songs = [
       "怎麼你閉口不語 是不是我正好說中你的心",
       "就承認還是在意吧 哪怕騙騙我也可以"
     ]
+  },
+  {
+    id: "beauty",
+    title: "Beauty and A Beat",
+    meta: "依照你提供的譜例整理 / 上點高音 / 第一段展開 3 次",
+    keyOffset: 0,
+    defaultTempo: 104,
+    keyboardRange: "full",
+    lines: [
+      [high("33332"), high("2122211")],
+      [high("33332"), high("2122211")],
+      [high("33332"), high("2122211")],
+      [high("33332"), high("33332")],
+      [high("115"), high("4343")],
+      [high("1154"), high("3221")],
+      [high("1154"), high("3221")],
+      [high("23"), high("43")]
+    ]
   }
 ];
 
 const scaleSemitones = { "1": 0, "2": 2, "3": 4, "4": 5, "5": 7, "6": 9, "7": 11 };
 const linesPerPage = 2;
-const whiteLabels = ["1_", "2_", "3_", "4_", "5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7", "1^"];
-const blackKeyPositions = [6.667, 13.333, 26.667, 33.333, 40, 53.333, 60, 73.333, 80, 86.667];
-const octaveDividerPositions = [46.667, 93.333];
+const keyboardRanges = {
+  standard: ["1_", "2_", "3_", "4_", "5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7", "1^"],
+  full: ["1_", "2_", "3_", "4_", "5_", "6_", "7_", "1", "2", "3", "4", "5", "6", "7", "1^", "2^", "3^", "4^", "5^", "6^", "7^"]
+};
+const hasBlackAfter = new Set(["1", "2", "4", "5", "6"]);
 
 const songSelect = document.querySelector("#songSelect");
 const tempoControl = document.querySelector("#tempoControl");
@@ -100,13 +122,22 @@ let currentSong = songs[0];
 let isPlaying = false;
 let currentPage = 0;
 
-function init() {
-  songs.forEach((song) => {
-    const option = document.createElement("option");
-    option.value = song.id;
-    option.textContent = song.title;
-    songSelect.appendChild(option);
-  });
+function degreeOf(label) { return label.replace("_", "").replace("^", ""); }
+function keyboardLabelsForSong(song) { return keyboardRanges[song.keyboardRange || "standard"]; }
+function blackKeyPositionsFor(labels) {
+  return labels
+    .map((label, index) => hasBlackAfter.has(degreeOf(label)) && index < labels.length - 1 ? ((index + 1) / labels.length) * 100 : null)
+    .filter((position) => position !== null);
+}
+function octaveDividerPositionsFor(labels) {
+  return labels
+    .map((label, index) => degreeOf(label) === "7" && index < labels.length - 1 ? ((index + 1) / labels.length) * 100 : null)
+    .filter((position) => position !== null);
+}
+function renderPiano() {
+  const whiteLabels = keyboardLabelsForSong(currentSong);
+  piano.innerHTML = "";
+  piano.style.setProperty("--white-count", whiteLabels.length);
 
   whiteLabels.forEach((label, index) => {
     const key = document.createElement("button");
@@ -125,7 +156,7 @@ function init() {
     piano.appendChild(key);
   });
 
-  octaveDividerPositions.forEach((position) => {
+  octaveDividerPositionsFor(whiteLabels).forEach((position) => {
     const divider = document.createElement("span");
     divider.className = "octave-divider";
     divider.style.left = `${position}%`;
@@ -133,12 +164,21 @@ function init() {
     piano.appendChild(divider);
   });
 
-  blackKeyPositions.forEach((position) => {
+  blackKeyPositionsFor(whiteLabels).forEach((position) => {
     const key = document.createElement("span");
     key.className = "black-key";
     key.style.left = `${position}%`;
     key.setAttribute("aria-hidden", "true");
     piano.appendChild(key);
+  });
+}
+
+function init() {
+  songs.forEach((song) => {
+    const option = document.createElement("option");
+    option.value = song.id;
+    option.textContent = song.title;
+    songSelect.appendChild(option);
   });
 
   songSelect.addEventListener("change", () => {
@@ -146,6 +186,7 @@ function init() {
     currentSong = songs.find((song) => song.id === songSelect.value);
     currentPage = 0;
     tempoControl.value = currentSong.defaultTempo;
+    renderPiano();
     renderSong();
   });
   tempoControl.addEventListener("input", () => { tempoValue.textContent = `${tempoControl.value} BPM`; });
@@ -154,6 +195,7 @@ function init() {
   prevPageBtn.addEventListener("click", () => changePage(-1));
   nextPageBtn.addEventListener("click", () => changePage(1));
   tempoControl.value = currentSong.defaultTempo;
+  renderPiano();
   renderSong();
 }
 
