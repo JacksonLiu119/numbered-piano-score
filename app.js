@@ -1,10 +1,19 @@
 const tokens = (text) => {
   const result = [];
+  let lowGroup = false;
   for (const character of text.replace(/\s+/g, "")) {
+    if (character === "(") {
+      lowGroup = true;
+      continue;
+    }
+    if (character === ")") {
+      lowGroup = false;
+      continue;
+    }
     if (character === "_" || character === "^") {
       if (result.length) result[result.length - 1] += character;
     } else {
-      result.push(character);
+      result.push(lowGroup && /[1-7]/.test(character) ? `${character}_` : character);
     }
   }
   return result;
@@ -119,6 +128,19 @@ const songs = [
       ["533", "422", "13552"],
       ["2222-234", "3333-345"],
       ["533", "422", "13551"]
+    ]
+  },
+  {
+    id: "ai-wo-bie-zou",
+    title: "愛我別走（副歌）",
+    meta: "依照你提供的副歌數字譜整理 / 右手數字旋律 / 可播放示範",
+    keyOffset: 0,
+    defaultTempo: 88,
+    lines: [
+      ["3231-1(756)-1213"],
+      ["333333-4321", "(66)4-3132"],
+      ["3251-1(756)-1213-333321"],
+      ["333333-4321", "(66)4-3121"]
     ]
   }
 ];
